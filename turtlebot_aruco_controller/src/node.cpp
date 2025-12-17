@@ -380,8 +380,15 @@ void ArucoControllerNode::mainloop()
 ArucoControllerNode::CycleCallbackReturn ArucoControllerNode::on_deactivate(const rclcpp_lifecycle::State &)
 {
 # ifdef TAC_DEBUG
-  if (cv::getWindowProperty(DEBUG_WINDOW, cv::WND_PROP_AUTOSIZE) != -1.0)
+  //! NOTE: This *should* work but it does not under the Qt framework
+  // if (cv::getWindowProperty(DEBUG_WINDOW, cv::WND_PROP_AUTOSIZE) != -1.0)
+  try {
     cv::destroyWindow(DEBUG_WINDOW);
+  }
+  catch (const cv::Exception &exception)
+  {
+    RCLCPP_WARN_STREAM(mLogger, "Failed destroying window: " << exception.what());
+  }
 # endif // TAC_DEBUG
 
   mCapture.release();

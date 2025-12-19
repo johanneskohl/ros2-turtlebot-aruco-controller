@@ -131,7 +131,7 @@ ArucoControllerNode::CycleCallbackReturn ArucoControllerNode::on_activate(const 
   //!       for more info see: https://github.com/opencv/opencv/issues/23864
   if (!mCapture.open(cameraId, cv::CAP_V4L2))
   {
-    RCLCPP_ERROR_STREAM(mLogger, "Failed to open capture device: " << cameraId);
+    RCLCPP_ERROR_STREAM(mLogger, "Failed to open capture device with id " << cameraId << ": " << std::strerror(errno));
     return CycleCallbackReturn::FAILURE;
   }
   RCLCPP_DEBUG_STREAM(mLogger, "Camera uses " << mCapture.getBackendName() << " backend");

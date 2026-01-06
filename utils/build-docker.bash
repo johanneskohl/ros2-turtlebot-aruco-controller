@@ -9,7 +9,7 @@ defaultDockerBaseName='ros2-turtlebot-aruco-controller'
 imageName="${defaultDockerBaseName}-image"
 
 function printHelp {
-  echo "build-docker.bash [–-help] [--image-name NAME]"
+  echo "build-docker.bash [--help] [--image-name NAME]"
   echo "Build the docker image to run ros2-turtlebot-aruco-controller containerised."
   echo
   echo "Options:"
@@ -18,8 +18,8 @@ function printHelp {
 }
 
 if ! validArgs=$(getopt \
-  --options hv:d:i:c:u:g:b \
-  --longoptions help,video-device:,ros-domain-id:,image-name:,container-name:,container-user:,container-group:,run-bash \
+  --options hi: \
+  --longoptions help,image-name: \
   -- "${@}"); then
   printHelp
   exit 1

@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 videoDeviceId=${1:-4}
+buildDebug=${2:-OFF}
 
 set -em
 scriptDir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
@@ -30,6 +31,13 @@ if [[ -z ${ROS_VERSION} ]]; then
   # shellcheck disable=1090
   source "/opt/ros/${ROS_DISTRO}/setup.bash"
 fi
+colcon build \
+  --symlink-install \
+  --packages-select \
+    turtlebot_aruco_controller \
+  --cmake-args \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DTAC_DEBUG=${buildDebug}
 source "${wsDir}/install/setup.bash"
 
 if aruco-controller-node-online; then

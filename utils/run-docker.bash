@@ -12,11 +12,12 @@ imageName="${defaultDockerBaseName}-image"
 containerName="${defaultDockerBaseName}-container"
 containerUser=$(id -u)
 containerGroup=$(id -g)
+buildDebug=false
 runBash=false
 rebuild=false
 
 function printHelp {
-  echo "run-docker.bash [--help] [--video-device ID] [--ros-domain-id ID] [--image-name NAME] [--container-name NAME] [--container-user USER] [--container-group GROUP] [--run-bash] [--rebuild]"
+  echo "run-docker.bash [--help] [--video-device ID] [--ros-domain-id ID] [--image-name NAME] [--container-name NAME] [--container-user USER] [--container-group GROUP] [--build-debug] [--run-bash] [--rebuild]"
   echo "Run the workspace containing the ros2-turtlebot-aruco-controller in a docker container."
   echo
   echo "Options:"
@@ -27,13 +28,15 @@ function printHelp {
   echo "  --container-name  -c  NAME    The name of the docker container. (default: '${containerName}')"
   echo "  --container-user  -u  USER    The name or id of the container user. (default: ${containerUser})"
   echo "  --container-group -g  GROUP   The name or id of the container user. (default: ${containerGroup})"
+  echo "  --build-debug                 Whether to rebuild the ros2 package with visual debug output enabled"
+  echo "                                Note: Ignored when --run-bash is given."
   echo "  --run-bash        -b          Run bash console instead of the node directly."
   echo "  --rebuild         -r          Force image to be rebuild, even if it already exists."
 }
 
 if ! validArgs=$(getopt \
   --options hv:d:i:c:u:g:br \
-  --longoptions help,video-device:,ros-domain-id:,image-name:,container-name:,container-user:,container-group:,run-bash,rebuild \
+  --longoptions help,video-device:,ros-domain-id:,image-name:,container-name:,container-user:,container-group:,build-debug,run-bash,rebuild \
   -- "${@}"); then
   printHelp
   exit 1
@@ -64,6 +67,9 @@ while true; do
     --container-group | -g )
       containerGroup=${2}
       shift 2;;
+    --build-debug )
+      buildDebug=true
+      shift 1;;
     --run-bash | -b )
       runBash=true
       shift 1;;
@@ -83,6 +89,12 @@ if "${rebuild}" || ! docker image inspect "${imageName}" &> /dev/null; then
   echo "...done."
 fi
 
+if "${buildDebug}"; then
+  buildDebugToggle=ON
+else
+  buildDebugToggle=OFF
+fi
+
 if "${runBash}"; then
   entrypoint=(/bin/bash)
 else
@@ -91,6 +103,7 @@ else
     /bin/bash
     /home/ubuntu/"$(realpath --no-symlinks --relative-to "${parentDir}" "${scriptDir}")"/run-node.bash
     "${videoDevice}"
+    "${buildDebugToggle}"
   )
 fi
 
@@ -119,21 +132,3 @@ docker run \
   --privileged \
   "${imageName}" \
   "${entrypoint[@]}"
-
-# docker run \
-#   --sig-proxy=false \
-#   -a STDOUT -a STDERR \
-#   --mount type=bind,src=/home/johannes/Documents/CodeProjects/turtlebot_charuco_controller_ws,dst=/home/ubuntu/turtlebot_charuco_controller_ws \
-#   --mount type=bind,src=/tmp/.X11-unix,dst=/tmp/.X11-unix \
-#   --mount type=bind,src=/run/user/1000/wayland-0,dst=/tmp/vscode-wayland-4ab91370-7186-43a4-9f02-e7a9b4913a65.sock \
-#   -e DISPLAY=:0 \
-#   -u ubuntu \
-#   --net host \
-#   --device /dev/video4 \
-#   --runtime nvidia \
-#   --gpus all \
-#   --privileged \
-#   --entrypoint /bin/sh \
-#   vsc-turtlebot_charuco_controller_ws-2a610439c124a41e4a0331ffda8602fdc62dc73c8008807f5d4ec95ecf843d1d \
-#   -c \
-#     echo Container started

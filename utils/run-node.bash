@@ -21,6 +21,10 @@ function shutdown-aruco-controller {
 }
 
 
+if ! v4l2-ctl --list-devices &> /dev/null; then
+  sudo setfacl --set=user::rw-,user:1000:rw-,group::rw-,mask::rw-,other::--- "/dev/video${videoDeviceIdx}"
+fi
+
 if [[ -z ${ROS_VERSION} ]]; then
   # shellcheck disable=1090
   source "/opt/ros/${ROS_DISTRO}/setup.bash"

@@ -11,6 +11,7 @@ RUN set -x && \
     gdb \
     wget curl zip unzip tar \
     nano \
+    acl \
     python3-venv python3-pip \
     v4l-utils \
     git openssh-client && \

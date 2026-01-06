@@ -21,12 +21,6 @@ function shutdown-aruco-controller {
 }
 
 
-############ Stupid fix for a stupid bug, see readme for more info ############
-if ! v4l2-ctl --list-devices &> /dev/null; then
-  sudo chmod 777 /dev/video"${videoDeviceId}"
-fi
-###############################################################################
-
 if [[ -z ${ROS_VERSION} ]]; then
   # shellcheck disable=1090
   source "/opt/ros/${ROS_DISTRO}/setup.bash"

@@ -112,7 +112,6 @@ if [[ -n ${containerId} ]]; then
   docker container rm -f "${containerId}" > /dev/null
 fi
 
-set -x
 docker run \
   -it \
   --name "${containerName}"\
